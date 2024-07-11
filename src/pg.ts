@@ -20,13 +20,20 @@ async function getPool() {
 async function initPool() {
   console.log('creating global pool');
 
+  const ssl =
+    process.env.NODE_ENV === 'production'
+      ? {
+          rejectUnauthorized: false,
+        }
+      : undefined;
   const url = process.env.DATABASE_URL;
   if (!url) {
     throw new Error('Required env var DATABASE_URL not set');
   }
 
   const pool = new pg.Pool({
-    connectionString: url
+    connectionString: url,
+    ssl
   });
 
   // the pool will emit an error on behalf of any idle clients
