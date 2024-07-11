@@ -2,19 +2,43 @@
   "name": "alternate-entangle-server",
   "version": "1.0.0",
   "description": "Entangle Server",
+  "type": "module",
   "main": "index.ts",
   "scripts": {
-    "start": "ts-node src/index.ts",
-    "build": "tsc",
+    "start": "DATABASE_URL=postgresql://postgres:root@0.0.0.0:5433/entangle PORT=3000 node --loader ts-node/esm  --experimental-specifier-resolution=node ./src/main.ts",
+    "build": "rm -rf ./dist && tsc",
     "serve": "node dist/index.js"
+  },
+  "dependencies": {
+    "@rocicorp/rails": "0.8.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.1",
+    "nanoid": "^4.0.0",
+    "replicache": "^14.2.2",
+    "replicache-transaction": "^0.3.3"
   },
   "author": "Vyapak Khare",
   "license": "MIT",
   "devDependencies": {
+    "@rocicorp/eslint-config": "^0.1.2",
+    "@rocicorp/prettier-config": "^0.1.1",
+    "@types/chai": "^4.3.0",
     "@types/express": "^4.17.21",
+    "@types/mocha": "^9.1.0",
     "@types/node": "^20.14.10",
+    "@types/pg": "^8.6.4",
+    "@typescript-eslint/eslint-plugin": "^5.3.1",
+    "@typescript-eslint/parser": "^5.18.0",
+    "chai": "^4.3.6",
+    "eslint": "^8.2.0",
     "express": "^4.19.2",
+    "mocha": "^9.2.1",
+    "nodemon": "^2.0.19",
+    "pg": ">=8.6.0",
+    "pg-mem": ">=2.5.0",
+    "prettier": "^2.2.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "zod": ">=3.17.3"
   }
 }
