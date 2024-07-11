@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.ts",
   "scripts": {
-    "start": "DATABASE_URL=postgresql://postgres:root@0.0.0.0:5433/entangle PORT=3000 node --loader ts-node/esm  --experimental-specifier-resolution=node ./src/main.ts",
+    "start": "DATABASE_URL=postgresql://entangle_db_user:ClymtRzy5o5xeI3dNEJjDwU9BQUaED67@dpg-cq85i9mehbks738e85jg-a.oregon-postgres.render.com/entangle_db PORT=3000 node --loader ts-node/esm  --experimental-specifier-resolution=node ./src/main.ts",
     "build": "rm -rf ./dist && tsc",
     "serve": "node dist/index.js"
   },
