@@ -17,10 +17,19 @@ export async function createGhIssue(
 ): Promise<{ success: boolean; message: string; issue?: GhIssue }> {
     const { id: todoId, title, description } = todo;
 
-    // Get the user's GitHub configuration
+    const { rows: listRows } = await executor(
+        `select ownerid from list where id = $1`,
+        [todo.listID]
+    );
+
+    if (listRows[0].ownerid === userID) {
+        // Creator of todo is the owner of the list
+    }
+
+    // Get the user's GitHub configuration for the owner of the list
     const { rows: configRows } = await executor(
         `select gh_repo_name, gh_pat, gh_username from gh_config where userid = $1`,
-        [userID]
+        [listRows[0].ownerid]
     );
 
     if (configRows.length === 0) {
@@ -76,10 +85,19 @@ export async function updateGhIssue(
 ): Promise<{ success: boolean; message: string }> {
     const { id: todoId, title, description } = todo;
 
-    // Get the user's GitHub configuration
+    const { rows: listRows } = await executor(
+        `select ownerid from list where id = $1`,
+        [todo.listID]
+    );
+
+    if (listRows[0].ownerid === userID) {
+        // Creator of todo is the owner of the list
+    }
+
+    // Get the user's GitHub configuration for the owner of the list
     const { rows: configRows } = await executor(
         `select gh_repo_name, gh_pat, gh_username from gh_config where userid = $1`,
-        [userID]
+        [listRows[0].ownerid]
     );
 
     if (configRows.length === 0) {
@@ -123,6 +141,33 @@ export async function deleteGhIssue(
     todoId: string,
     userID: string
 ): Promise<{ success: boolean; message: string }> {
+
+    const { rows: todoRows } = await executor(
+        `select listid from item where id = $1`,
+        [todoId]
+    )
+
+    const { rows: listRows } = await executor(
+        `select ownerid from list where id = $1`,
+        [todoRows[0].listid]
+    );
+
+    // Get the user's GitHub configuration
+    const { rows: configRows } = await executor(
+        `select gh_repo_name, gh_pat, gh_username from gh_config where userid = $1`,
+        [listRows[0].ownerid]
+    );
+
+    if (configRows.length === 0) {
+        return { success: false, message: 'GitHub configuration not found for this user' };
+    }
+
+    const { gh_repo_name, gh_pat, gh_username } = configRows[0];
+
+    if (listRows[0].ownerid === userID) {
+        // Creator of todo is the owner of the list
+    }
+
     // Get the GitHub issue ID for the todo
     const { rows: issueRows } = await executor(
         `select ghid from gh_issues where todoid = $1`,
@@ -135,17 +180,6 @@ export async function deleteGhIssue(
 
     const githubIssueId = issueRows[0].ghid;
 
-    // Get the user's GitHub configuration
-    const { rows: configRows } = await executor(
-        `select gh_repo_name, gh_pat, gh_username from gh_config where userid = $1`,
-        [userID]
-    );
-
-    if (configRows.length === 0) {
-        return { success: false, message: 'GitHub configuration not found for this user' };
-    }
-
-    const { gh_repo_name, gh_pat, gh_username } = configRows[0];
     const githubClient = createGithubClient(gh_pat);
 
     try {

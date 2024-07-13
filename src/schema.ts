@@ -1,6 +1,6 @@
 import type { Executor } from './pg';
 
-const schemaVersion = 12;
+const schemaVersion = 13;
 
 export async function createDatabase(executor: Executor) {
   console.log('creating database');
@@ -15,6 +15,8 @@ export async function createSchema(executor: Executor) {
     `drop table if exists replicache_meta, replicache_client_group, entangle_user, gh_config, 
     gh_issues, replicache_client, list, share, item cascade`,
   );
+
+  await executor(`drop type if exists status_enum, priority_enum cascade`);
 
   await executor(
     'create table replicache_meta (key text primary key, value json)',
@@ -61,7 +63,7 @@ export async function createSchema(executor: Executor) {
 
   await executor(`do $$ begin
     if not exists (select 1 from pg_type where typname = 'status_enum') then
-        create type status_enum as enum ('TODO', 'IN_PROGRESS', 'DONE');
+        create type status_enum as enum ('TODO', 'IN_PROGRESS', 'DONE', 'CLOSED');
     end if;
   end $$;`);
 
