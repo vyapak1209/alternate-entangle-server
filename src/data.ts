@@ -201,7 +201,7 @@ export async function deleteTodo(
 ): Promise<Affected> {
   const todo = await mustGetTodo(executor, todoID);
   await requireAccessToList(executor, todo.listID, userID);
-  await executor(`delete from item where id = $1`, [todoID]);
+  await executor(`update item set status = coalesce('CLOSED', status), lastmodified = now() where id = $1`, [todoID]);
   return {
     listIDs: [todo.listID],
     userIDs: [],

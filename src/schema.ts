@@ -1,6 +1,6 @@
 import type { Executor } from './pg';
 
-const schemaVersion = 7;
+const schemaVersion = 13;
 
 export async function createDatabase(executor: Executor) {
   console.log('creating database');
@@ -12,9 +12,11 @@ export async function createDatabase(executor: Executor) {
 
 export async function createSchema(executor: Executor) {
   await executor(
-    `drop table if exists replicache_meta, replicache_client_group,
-    replicache_client, list, share, item cascade`,
+    `drop table if exists replicache_meta, replicache_client_group, entangle_user, gh_config, 
+    gh_issues, replicache_client, list, share, item cascade`,
   );
+
+  await executor(`drop type if exists status_enum, priority_enum cascade`);
 
   await executor(
     'create table replicache_meta (key text primary key, value json)',
@@ -25,16 +27,14 @@ export async function createSchema(executor: Executor) {
   );
 
   await executor(`create table entangle_user (
-    userid varchar(36) not null,
+    id uuid primary key not null,
     username varchar(36) not null,
-    gh_repo_name varchar(36),
-    gh_pat varchar(255),
-    gh_pat_expiry timestamp(6),
+    passkey smallint not null,
     lastmodified timestamp(6) not null
     )`);
 
   await executor(`create table replicache_client_group (
-    id varchar(36) primary key not null,
+    id varchar(36) primary key,
     userid varchar(36) not null,
     cvrversion integer not null,
     lastmodified timestamp(6) not null
@@ -60,10 +60,10 @@ export async function createSchema(executor: Executor) {
     userid varchar(36) not null,
     lastmodified timestamp(6) not null
     )`);
-    
-    await executor(`do $$ begin
+
+  await executor(`do $$ begin
     if not exists (select 1 from pg_type where typname = 'status_enum') then
-        create type status_enum as enum ('TODO', 'IN_PROGRESS', 'DONE');
+        create type status_enum as enum ('TODO', 'IN_PROGRESS', 'DONE', 'CLOSED');
     end if;
   end $$;`);
 
@@ -74,7 +74,7 @@ export async function createSchema(executor: Executor) {
   end $$;`);
 
   await executor(`create table item (
-    id varchar(36) primary key not null,
+    id uuid primary key not null,
     listid varchar(36) not null,
     title text not null,
     description text,
@@ -83,6 +83,22 @@ export async function createSchema(executor: Executor) {
     ord integer not null,
     lastmodified timestamp(6) not null
     )`);
+
+  await executor(`create table gh_config (
+      id uuid primary key,
+      userid uuid references entangle_user(id),
+      gh_repo_name varchar(255),
+      gh_pat text,
+      gh_username varchar(36),
+      lastmodified timestamp(6) not null
+    )`);
+
+  await executor(`create table gh_issues (
+      id varchar(36) primary key,
+      todoid uuid references item(id),
+      ghid varchar(36),
+      lastmodified timestamp(6) not null
+    )`)
 }
 
 async function getSchemaVersion(executor: Executor) {

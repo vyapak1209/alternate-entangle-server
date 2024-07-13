@@ -1,6 +1,6 @@
-import {z} from 'zod';
-import {Executor, transact} from './pg';
-import {getPokeBackend} from './poke';
+import { z } from 'zod';
+import { Executor, transact } from './pg';
+import { getPokeBackend } from './poke';
 import {
   createList,
   createTodo,
@@ -15,8 +15,9 @@ import {
   getClientGroup,
   getClient,
 } from './data';
-import type {ReadonlyJSONValue} from 'replicache';
-import {listSchema, shareSchema, todoSchema} from './entities';
+import { createGhIssue, updateGhIssue, deleteGhIssue } from './services/github-sync/gh-issues'; // Import ghIssues service
+import type { ReadonlyJSONValue } from 'replicache';
+import { listSchema, shareSchema, todoSchema } from './entities';
 
 const mutationSchema = z.object({
   id: z.number(),
@@ -86,7 +87,7 @@ async function processMutation(
 ): Promise<Affected> {
   // 2: beginTransaction
   return await transact(async executor => {
-    let affected: Affected = {listIDs: [], userIDs: []};
+    let affected: Affected = { listIDs: [], userIDs: [] };
 
     console.log(
       'Processing mutation',
@@ -174,11 +175,24 @@ async function mutate(
         z.string().parse(mutation.args),
       );
     case 'createTodo':
-      return await createTodo(
+      const todo = todoSchema.omit({ sort: true }).parse(mutation.args);
+      console.log('Called to create todo', todo)
+      const createResult = await createTodo(
         executor,
         userID,
-        todoSchema.omit({sort: true}).parse(mutation.args),
+        todo,
       );
+
+      try {
+        // Not awaiting this promise as I want the user to see the todos in action.
+        // If I await this promise, it would end up blocking the creation of the todo
+        // till the creation of the issue.
+        createGhIssue(executor, todo, userID);
+      } catch (err) {
+        console.log('Error in creating GH Issue', err)
+      }
+
+      return createResult;
     case 'createShare':
       return await createShare(
         executor,
@@ -192,20 +206,40 @@ async function mutate(
         z.string().parse(mutation.args),
       );
     case 'updateTodo':
-      return await updateTodo(
+      const updatedTodo = todoSchema
+        .partial()
+        .merge(todoSchema.pick({ id: true }))
+        .parse(mutation.args);
+      const updateResult = await updateTodo(
         executor,
         userID,
-        todoSchema
-          .partial()
-          .merge(todoSchema.pick({id: true}))
-          .parse(mutation.args),
+        updatedTodo,
       );
+      try {
+        // Not awaiting this promise as I want the user to see the todos in action.
+        // If I await this promise, it would end up blocking the update of the todo
+        // till the update of the issue.
+        updateGhIssue(executor, updatedTodo, userID);
+      } catch (err) {
+        console.log('Error in updating GH Issue', err)
+      }
+      return updateResult;
     case 'deleteTodo':
-      return await deleteTodo(
+      const todoId = z.string().parse(mutation.args);
+      const deleteResult = await deleteTodo(
         executor,
         userID,
-        z.string().parse(mutation.args),
+        todoId,
       );
+      try {
+        // Not awaiting this promise as I want the user to see the todos in action.
+        // If I await this promise, it would end up blocking the deletion of the todo
+        // till the deletion of the issue.
+        deleteGhIssue(executor, todoId, userID);
+      } catch (err) {
+        console.log('Error in deleting GH Issue', err)
+      }
+      return deleteResult;
     default:
       return {
         listIDs: [],
