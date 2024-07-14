@@ -1,4 +1,4 @@
-import { Executor } from "../../pg";
+import { Executor } from "../../pg.js";
 
 import { v4 as uuid } from 'uuid';
 
@@ -16,7 +16,6 @@ export async function createGhConfig(
 ): Promise<{ success: boolean; message: string; config?: GhConfig }> {
     const { userID, ghRepoName, ghPat, ghUserName } = config;
 
-    // Check if the GitHub configuration already exists for the user
     const { rows } = await executor(
         `select 1 from gh_config where userid = $1`,
         [userID]

@@ -1,5 +1,5 @@
-import { Executor } from "../../pg";
-import { GhConfig, createGhConfig } from "../github-sync/gh-config";
+import { Executor } from "../../pg.js";
+import { GhConfig, createGhConfig } from "../github-sync/gh-config.js";
 
 import { v4 as uuid } from 'uuid';
 
@@ -18,7 +18,6 @@ export async function createUser(
 ): Promise<{ success: boolean; message: string; user?: User }> {
     const { username, passkey } = user;
 
-    // Check if the user already exists
     const { rows } = await executor(
         `select 1 from entangle_user where username = $1`,
         [username]
@@ -30,13 +29,11 @@ export async function createUser(
 
     const newUserID = uuid();
 
-    // Insert the new user
     await executor(
         `insert into entangle_user (id, username, passkey, lastmodified) values ($1, $2, $3, now())`,
         [newUserID, username, passkey]
     );
 
-    // Save GitHub configuration if provided
     if (ghConfig) {
         ghConfig.userID = newUserID;
         ghConfig.ghUserName = username;

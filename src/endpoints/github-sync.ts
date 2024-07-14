@@ -1,5 +1,5 @@
-import { transact } from '../pg';
-import { updateGhConfig } from '../services/github-sync/gh-config'; // Assuming updateGhConfig is defined in ghConfig service
+import { transact } from '../pg.js';
+import { updateGhConfig } from '../services/github-sync/gh-config.js';
 
 import type Express from 'express';
 

@@ -11,13 +11,13 @@
     "declaration": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
-    "outDir": "dist",
+    "outDir": "./dist",
+    "rootDir": "./src",
     "allowJs": true,
-    // esnext for Object.fromEntries
     "lib": ["dom", "DOM.Iterable", "esnext"],
     "preserveSymlinks": true,
     "types": ["node"]
   },
-  "include": ["**/src/**/*.ts"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "lib"]
 }

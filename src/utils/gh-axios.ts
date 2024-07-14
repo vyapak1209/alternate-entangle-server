@@ -5,8 +5,8 @@ export function createGithubClient(ghPat: string) {
         baseURL: 'https://api.github.com',
         headers: {
             'Authorization': `Bearer ${ghPat}`,
-            'Accept': 'application/vnd.github+json',
-            'X-GitHub-Api-Version': '2022-11-28'
+            'Accept': 'application/vnd.github+json', // Essential
+            'X-GitHub-Api-Version': '2022-11-28' // Essential
         },
     });
 };

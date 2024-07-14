@@ -1,7 +1,7 @@
 import {z} from 'zod';
 import type {PatchOperation, PullResponse} from 'replicache';
 import type Express from 'express';
-import {transact} from './pg';
+import {transact} from './pg.js';
 import {
   getClientGroup,
   getLists,
@@ -12,14 +12,14 @@ import {
   searchLists,
   searchShares,
   searchTodos,
-} from './data';
+} from './data.js';
 import {
   cvrEntriesFromSearch,
   type CVR,
   diffCVR,
   isCVRDiffEmpty,
   CVREntries,
-} from './cvr';
+} from './cvr.js';
 import {nanoid} from 'nanoid';
 
 const cookie = z.object({

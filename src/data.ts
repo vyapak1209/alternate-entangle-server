@@ -1,4 +1,4 @@
-import type {List, Todo, TodoUpdate, Share} from './entities';
+import type {List, Todo, TodoUpdate, Share} from './entities/index.js';
 import type {Executor} from './pg.js';
 
 export type SearchResult = {

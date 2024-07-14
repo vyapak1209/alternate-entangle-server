@@ -1,6 +1,6 @@
-import { Executor } from '../../pg';
-import { TodoUpdate } from '../../entities';
-import { createGithubClient } from '../../utils/gh-axios';
+import { Executor } from '../../pg.js';
+import { TodoUpdate } from '../../entities/index.js';
+import { createGithubClient } from '../../utils/gh-axios.js';
 
 import { v4 as uuid } from 'uuid';
 
@@ -26,7 +26,8 @@ export async function createGhIssue(
         // Creator of todo is the owner of the list
     }
 
-    // Get the user's GitHub configuration for the owner of the list
+    // Doing this to ensure there is no inconsistency in todo x issue if a collaborator
+    // updates/deletes/creates a todo
     const { rows: configRows } = await executor(
         `select gh_repo_name, gh_pat, gh_username from gh_config where userid = $1`,
         [listRows[0].ownerid]
@@ -94,7 +95,8 @@ export async function updateGhIssue(
         // Creator of todo is the owner of the list
     }
 
-    // Get the user's GitHub configuration for the owner of the list
+    // Doing this to ensure there is no inconsistency in todo x issue if a collaborator
+    // updates/deletes/creates a todo
     const { rows: configRows } = await executor(
         `select gh_repo_name, gh_pat, gh_username from gh_config where userid = $1`,
         [listRows[0].ownerid]
@@ -152,7 +154,8 @@ export async function deleteGhIssue(
         [todoRows[0].listid]
     );
 
-    // Get the user's GitHub configuration
+    // Doing this to ensure there is no inconsistency in todo x issue if a collaborator
+    // updates/deletes/creates a todo
     const { rows: configRows } = await executor(
         `select gh_repo_name, gh_pat, gh_username from gh_config where userid = $1`,
         [listRows[0].ownerid]

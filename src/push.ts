@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { Executor, transact } from './pg';
-import { getPokeBackend } from './poke';
+import { Executor, transact } from './pg.js';
+import { getPokeBackend } from './poke.js';
 import {
   createList,
   createTodo,
@@ -14,10 +14,10 @@ import {
   Affected,
   getClientGroup,
   getClient,
-} from './data';
-import { createGhIssue, updateGhIssue, deleteGhIssue } from './services/github-sync/gh-issues'; // Import ghIssues service
+} from './data.js';
+import { createGhIssue, updateGhIssue, deleteGhIssue } from './services/github-sync/gh-issues.js';
 import type { ReadonlyJSONValue } from 'replicache';
-import { listSchema, shareSchema, todoSchema } from './entities';
+import { listSchema, shareSchema, todoSchema } from './entities/index.js';
 
 const mutationSchema = z.object({
   id: z.number(),

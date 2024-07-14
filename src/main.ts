@@ -3,13 +3,13 @@ import { fileURLToPath } from 'url';
 import express from 'express';
 import type Express from 'express';
 
-import { handleCreateUser, handleLoginUser } from './endpoints/user';
-import { handleUpdateGhConfig } from './endpoints/github-sync'; // Import the new handler
+import { handleCreateUser, handleLoginUser } from './endpoints/user.js';
+import { handleUpdateGhConfig } from './endpoints/github-sync.js'; // Import the new handler
 
 import fs from 'fs';
-import { handlePush } from './endpoints/replicache-push';
-import { handlePull } from './endpoints/replicache-pull';
-import { handlePoke } from './endpoints/handle-poke';
+import { handlePush } from './endpoints/replicache-push.js';
+import { handlePull } from './endpoints/replicache-pull.js';
+import { handlePoke } from './endpoints/handle-poke.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

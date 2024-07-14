@@ -1,8 +1,8 @@
-import { transact } from '../pg';
+import { transact } from '../pg.js';
 import {
     createUser,
     loginUser
-} from '../services/user/user';
+} from '../services/user/user.js';
 
 import type Express from 'express';
 

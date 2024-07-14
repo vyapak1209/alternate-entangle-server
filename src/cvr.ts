@@ -1,4 +1,4 @@
-import type {SearchResult} from './data';
+import type {SearchResult} from './data.js';
 
 export type CVR = Record<string, CVREntries>;
 export type CVREntries = Record<string, number>;

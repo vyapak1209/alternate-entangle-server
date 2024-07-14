@@ -1,6 +1,6 @@
-import type { Executor } from './pg';
+import type { Executor } from './pg.js';
 
-const schemaVersion = 13;
+const schemaVersion = 17;
 
 export async function createDatabase(executor: Executor) {
   console.log('creating database');
@@ -55,9 +55,9 @@ export async function createSchema(executor: Executor) {
     )`);
 
   await executor(`create table share (
-    id varchar(36) primary key not null,
-    listid varchar(36) not null,
-    userid varchar(36) not null,
+    id varchar(72) primary key not null,
+    listid varchar(72) not null,
+    userid varchar(72) not null,
     lastmodified timestamp(6) not null
     )`);
 
